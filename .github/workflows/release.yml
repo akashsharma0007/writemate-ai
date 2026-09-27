@@ -1,0 +1,54 @@
+name: Release
+
+# Builds the Windows installer (.exe) + portable (.zip) and attaches both to
+# a GitHub Release whenever a version tag is pushed (e.g. "v1.0.0"). This is
+# the one automated step in the whole packaging pipeline — everything
+# before it (npm install, npm run dist, on Akash's own machine) was proven
+# to work by hand first in Phase D; this workflow just re-runs the same two
+# commands on a clean windows-latest runner every time a tag goes out, so a
+# friend downloading a release always gets a build made from scratch, not a
+# copy of whatever happened to be on Akash's own machine that day.
+#
+# Trigger a release by tagging a commit and pushing the tag, e.g.:
+#   git tag v1.0.0
+#   git push origin v1.0.0
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write # needed to create the Release and upload files to it
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build the Windows installer + portable zip
+        run: npm run dist
+
+      - name: List build output (sanity check in the Actions log)
+        run: dir dist
+
+      - name: Create the GitHub Release and attach the build
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/*.exe
+            dist/*.zip
+          generate_release_notes: true

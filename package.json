@@ -1,0 +1,77 @@
+{
+  "name": "writemate-ai",
+  "version": "0.1.0",
+  "description": "WriteMate AI — a free, self-hostable, privacy-first writing assistant (personal MVP).",
+  "author": "Akash",
+  "type": "module",
+  "private": true,
+  "main": "electron/main.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch --watch-path=server --watch-path=.env server/index.js",
+    "electron": "electron .",
+    "test": "node --test \"tests/**/*.test.js\"",
+    "dist": "electron-builder --win"
+  },
+  "dependencies": {
+    "diff": "^5.2.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "electron": "^33.4.11",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.writemate.ai",
+    "productName": "WriteMate AI",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      "server/**/*",
+      "public/**/*",
+      "package.json",
+      "!**/*.test.js"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/ahk",
+        "to": "ahk"
+      },
+      {
+        "from": "browser-extension",
+        "to": "extension"
+      }
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "zip",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "WriteMate AI",
+      "include": "build/installer.nsh"
+    },
+    "linux": {
+      "icon": "build/icon.png"
+    }
+  }
+}

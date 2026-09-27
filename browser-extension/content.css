@@ -1,0 +1,152 @@
+/* Loaded inside a shadow root, so none of this leaks into the host page
+   and none of the host page's styles leak in either. */
+
+:host {
+  all: initial;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.wm-badge {
+  position: fixed;
+  z-index: 2147483000;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #5b5bf0;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(20, 20, 40, 0.35);
+  border: none;
+  transition: transform 0.12s ease;
+  user-select: none;
+}
+.wm-badge:hover { transform: scale(1.08); }
+.wm-badge[hidden] { display: none; }
+
+.wm-panel {
+  position: fixed;
+  z-index: 2147483001;
+  width: 300px;
+  background: #1c1e28;
+  color: #ecedf3;
+  border: 1px solid #2b2d3a;
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+  font-size: 12.5px;
+  overflow: hidden;
+}
+.wm-panel[hidden] { display: none; }
+
+.wm-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: #14151c;
+  cursor: move;
+  border-bottom: 1px solid #2b2d3a;
+}
+.wm-panel-title { font-weight: 700; font-size: 12.5px; display: flex; align-items: center; gap: 6px; }
+.wm-panel-close {
+  background: none; border: none; color: #9498a8; cursor: pointer; font-size: 15px; line-height: 1; padding: 2px 4px;
+}
+.wm-panel-close:hover { color: #ecedf3; }
+
+.wm-panel-body { padding: 10px; }
+
+.wm-scope-note { color: #9498a8; font-size: 11px; margin-bottom: 8px; }
+
+.wm-action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.wm-btn {
+  background: #262749;
+  color: #ecedf3;
+  border: 1px solid #33355a;
+  border-radius: 7px;
+  padding: 7px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  text-align: center;
+}
+.wm-btn:hover { background: #33355a; }
+.wm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.wm-btn-primary { background: #5b5bf0; border-color: #5b5bf0; }
+.wm-btn-primary:hover { background: #4747d9; }
+.wm-btn-ghost { background: transparent; }
+.wm-btn-full { grid-column: 1 / -1; }
+
+.wm-custom-row { display: flex; gap: 6px; margin-bottom: 8px; }
+.wm-custom-row input {
+  flex: 1;
+  background: #14151c;
+  border: 1px solid #2b2d3a;
+  border-radius: 7px;
+  color: #ecedf3;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+.wm-custom-row input:focus { outline: 2px solid #5b5bf0; }
+
+.wm-status { color: #9498a8; font-size: 11.5px; padding: 4px 0; }
+.wm-status.wm-error { color: #fca5a5; }
+
+.wm-result { margin-top: 6px; border-top: 1px solid #2b2d3a; padding-top: 8px; }
+.wm-result-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.03em; color: #9498a8; margin-bottom: 3px; }
+.wm-result-text {
+  background: #14151c;
+  border: 1px solid #2b2d3a;
+  border-radius: 7px;
+  padding: 7px 8px;
+  max-height: 140px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  line-height: 1.45;
+  margin-bottom: 8px;
+}
+
+.wm-issue-highlight {
+  text-decoration: underline wavy #fca5a5;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  background: rgba(252, 165, 165, 0.15);
+  border-radius: 2px;
+  cursor: help;
+}
+
+.wm-warning {
+  background: #3a2f0f;
+  color: #fcd34d;
+  border: 1px solid #52440f;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 11px;
+  margin-bottom: 8px;
+}
+
+.wm-result-actions { display: flex; gap: 6px; }
+
+.wm-spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(236, 237, 243, 0.3);
+  border-top-color: #ecedf3;
+  border-radius: 50%;
+  animation: wm-spin 0.7s linear infinite;
+  margin-right: 6px;
+  vertical-align: -1px;
+}
+@keyframes wm-spin { to { transform: rotate(360deg); } }

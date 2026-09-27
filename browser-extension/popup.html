@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>WriteMate AI</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="header">
+    <span class="brand-mark">✨</span>
+    <span class="brand-name">WriteMate AI</span>
+  </div>
+
+  <div class="status-row">
+    <span id="statusDot" class="dot"></span>
+    <span id="statusText">Checking…</span>
+  </div>
+  <p class="subtle" id="statusHint"></p>
+
+  <div class="row">
+    <label class="switch-row">
+      <input type="checkbox" id="siteToggle" />
+      <span>Enable on <strong id="siteHost">this site</strong></span>
+    </label>
+  </div>
+
+  <div class="row">
+    <label class="field-label">Backend URL</label>
+    <input type="text" id="backendUrlInput" placeholder="http://localhost:4173" />
+    <p class="subtle">Only change this if you changed PORT in your server's .env — you'll also need to update host_permissions in manifest.json and reload the extension for a new port to work.</p>
+    <button id="saveBackendBtn" class="btn btn-ghost btn-sm">Save</button>
+  </div>
+
+  <button id="openAppBtn" class="btn btn-primary">Open full WriteMate app</button>
+
+  <p class="footer-note">Click into any text box, then click the ✨ that appears next to it — or press Ctrl/Cmd+Shift+W.</p>
+
+  <script src="popup.js"></script>
+</body>
+</html>

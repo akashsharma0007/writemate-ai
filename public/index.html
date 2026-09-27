@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WriteMate AI</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <nav class="sidebar">
+      <div class="brand">
+        <span class="brand-mark">✨</span>
+        <span class="brand-name">WriteMate AI</span>
+      </div>
+      <button class="nav-item active" data-view="write">Write</button>
+      <button class="nav-item" data-view="history">History</button>
+      <button class="nav-item" data-view="templates">Templates</button>
+      <button class="nav-item" data-view="style">My Style</button>
+      <button class="nav-item" data-view="profiles">Context Profiles</button>
+      <button class="nav-item" data-view="terms">Protected Terms</button>
+      <button class="nav-item" data-view="extension">Browser Extension</button>
+      <button class="nav-item" data-view="settings">Settings</button>
+      <div class="sidebar-footer">
+        <span id="providerBadge" class="badge">provider: —</span>
+      </div>
+    </nav>
+
+    <main class="content">
+      <!-- WRITE VIEW -->
+      <section id="view-write" class="view active">
+        <header class="view-header">
+          <h1>Write</h1>
+          <p class="subtle">Paste your text, tell WriteMate what you're trying to say, and pick how it should sound.</p>
+        </header>
+
+        <div class="panel">
+          <label class="field-label" for="originalText">Original text</label>
+          <textarea id="originalText" rows="6" placeholder="Paste or type the text you want help with…"></textarea>
+
+          <button id="toggleContext" class="link-btn" type="button">+ Add context (optional)</button>
+          <div id="contextWrap" class="hidden">
+            <label class="field-label" for="contextText">Context — what are you trying to say?</label>
+            <textarea id="contextText" rows="3" placeholder="e.g. This is a reply to a client confused about a reporting change introduced in GA13…"></textarea>
+          </div>
+
+          <div class="row row-controls">
+            <div class="field">
+              <label class="field-label" for="templateSelect">Template</label>
+              <select id="templateSelect"><option value="">None</option></select>
+            </div>
+            <div class="field">
+              <label class="field-label" for="profileSelect">Context profile</label>
+              <select id="profileSelect"><option value="">None</option></select>
+            </div>
+            <div class="field">
+              <label class="field-label" for="toneSelect">Tone</label>
+              <select id="toneSelect"><option value="">None</option></select>
+            </div>
+            <div class="field">
+              <label class="field-label" for="actionSelect">Action</label>
+              <select id="actionSelect"></select>
+            </div>
+          </div>
+
+          <label class="field-label" for="customInstruction">Custom instruction (optional)</label>
+          <textarea id="customInstruction" rows="2" placeholder="e.g. Sound professional but not robotic."></textarea>
+
+          <div class="row row-between">
+            <label class="checkbox">
+              <input type="checkbox" id="applyStyle" checked />
+              Apply my writing style
+            </label>
+            <div class="row-buttons">
+              <button id="clearBtn" class="btn btn-ghost" type="button">Clear current text</button>
+              <button id="generateBtn" class="btn btn-primary" type="button">Generate <kbd>⌘/Ctrl</kbd>+<kbd>Enter</kbd></button>
+            </div>
+          </div>
+        </div>
+
+        <div id="resultPanel" class="panel hidden">
+          <div id="warningsBox" class="warnings hidden"></div>
+
+          <div class="tabs">
+            <button class="tab active" data-tab="side">Side-by-side</button>
+            <button class="tab" data-tab="diff">Diff</button>
+            <button class="tab" data-tab="grammar" id="grammarTab" style="display:none">Grammar issues</button>
+          </div>
+
+          <div id="tab-side" class="tab-panel active">
+            <div class="side-by-side">
+              <div class="side-col">
+                <div class="side-col-label">Original</div>
+                <div id="sideOriginal" class="side-text"></div>
+              </div>
+              <div class="side-col">
+                <div class="side-col-label">
+                  Improved
+                  <span id="detectedTone" class="tone-badge hidden"></span>
+                </div>
+                <div id="sideImproved" class="side-text" contenteditable="false"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="tab-diff" class="tab-panel">
+            <div id="diffView" class="diff-view"></div>
+          </div>
+
+          <div id="tab-grammar" class="tab-panel">
+            <div class="row row-between">
+              <span class="subtle" id="grammarSummary"></span>
+              <button id="acceptAllBtn" class="btn btn-ghost btn-sm" type="button">Accept all</button>
+            </div>
+            <div id="grammarIssues"></div>
+          </div>
+
+          <div class="row row-buttons result-actions">
+            <button id="editBtn" class="btn btn-ghost" type="button">Edit</button>
+            <button id="tryAgainBtn" class="btn btn-ghost" type="button">Try again</button>
+            <button id="copyBtn" class="btn btn-ghost" type="button">Copy</button>
+            <button id="undoBtn" class="btn btn-ghost" type="button" disabled>Undo</button>
+            <button id="acceptBtn" class="btn btn-primary" type="button">Accept</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- HISTORY VIEW -->
+      <section id="view-history" class="view">
+        <header class="view-header">
+          <h1>History</h1>
+          <p class="subtle" id="historyNote"></p>
+        </header>
+        <div class="row row-between">
+          <span></span>
+          <button id="clearHistoryBtn" class="btn btn-ghost btn-sm" type="button">Delete all</button>
+        </div>
+        <div id="historyList"></div>
+      </section>
+
+      <!-- TEMPLATES VIEW -->
+      <section id="view-templates" class="view">
+        <header class="view-header">
+          <h1>Templates</h1>
+          <p class="subtle">Reusable presets for the tone/action you pick most often for a given kind of message.</p>
+        </header>
+        <div class="panel">
+          <div class="row row-controls">
+            <div class="field"><label class="field-label">Name</label><input id="newTemplateName" type="text" placeholder="e.g. Weekly Status Update" /></div>
+            <div class="field"><label class="field-label">Default tone</label><select id="newTemplateTone"><option value="">None</option></select></div>
+            <div class="field"><label class="field-label">Default action</label><select id="newTemplateAction"></select></div>
+            <div class="field field-btn"><button id="addTemplateBtn" class="btn btn-primary" type="button">Add</button></div>
+          </div>
+        </div>
+        <div id="templatesList"></div>
+      </section>
+
+      <!-- MY STYLE VIEW -->
+      <section id="view-style" class="view">
+        <header class="view-header">
+          <h1>My Writing Style</h1>
+          <p class="subtle">Explicit preferences you add — never inferred or built up silently. These get applied on every generate when "Apply my writing style" is checked.</p>
+        </header>
+        <div class="panel">
+          <textarea id="newStyleText" rows="2" placeholder="e.g. Don't overuse 'please'. Avoid corporate buzzwords. Keep sentences short."></textarea>
+          <button id="addStyleBtn" class="btn btn-primary btn-sm" type="button">Add preference</button>
+        </div>
+        <div id="styleList"></div>
+      </section>
+
+      <!-- CONTEXT PROFILES VIEW -->
+      <section id="view-profiles" class="view">
+        <header class="view-header">
+          <h1>Context Profiles</h1>
+          <p class="subtle">A profile nudges tone/context for a whole category of writing — Work, Internal, Personal, or your own.</p>
+        </header>
+        <div class="panel">
+          <div class="row row-controls">
+            <div class="field"><label class="field-label">Name</label><input id="newProfileName" type="text" placeholder="e.g. Vendors" /></div>
+            <div class="field field-grow"><label class="field-label">Description</label><input id="newProfileDesc" type="text" placeholder="How writing to this audience should sound" /></div>
+            <div class="field field-btn"><button id="addProfileBtn" class="btn btn-primary" type="button">Add</button></div>
+          </div>
+        </div>
+        <div id="profilesList"></div>
+      </section>
+
+      <!-- PROTECTED TERMS VIEW -->
+      <section id="view-terms" class="view">
+        <header class="view-header">
+          <h1>Protected Terms</h1>
+          <p class="subtle">WriteMate never lets these change, and also auto-detects numbers, dates, URLs, emails, dollar amounts, ticket IDs, versions, and code spans on every request.</p>
+        </header>
+        <div class="panel">
+          <label class="field-label">Built-in defaults (always protected)</label>
+          <div id="defaultTermsList" class="chip-list"></div>
+        </div>
+        <div class="panel">
+          <label class="field-label" for="newTermInput">Add your own term</label>
+          <div class="row">
+            <input id="newTermInput" type="text" placeholder="e.g. CDB_ORDER_HISTORY" />
+            <button id="addTermBtn" class="btn btn-primary" type="button">Add</button>
+          </div>
+          <div id="customTermsList" class="chip-list"></div>
+        </div>
+      </section>
+
+      <!-- BROWSER EXTENSION VIEW -->
+      <section id="view-extension" class="view">
+        <header class="view-header">
+          <h1>Browser Extension</h1>
+          <p class="subtle">Get the same Fix Grammar / Rewrite / Professional / Concise / Friendly actions inside Chrome or Edge — in Teams-in-browser, Zoho Desk, Gmail, or any editable text field.</p>
+        </header>
+
+        <div class="panel">
+          <h2>1. Locate the extension folder</h2>
+          <p class="subtle">The extension ships as a plain folder alongside this app — nothing to download separately.</p>
+          <div class="row">
+            <input id="extensionFolderPath" type="text" readonly />
+            <button id="openExtensionFolderBtn" class="btn btn-primary" type="button">Open folder</button>
+          </div>
+          <p id="extensionNotElectronNote" class="subtle hidden">Running in a browser tab right now, so WriteMate can't open the folder for you — navigate to the path above yourself in your file manager.</p>
+        </div>
+
+        <div class="panel">
+          <h2>2. Load it in Chrome or Edge</h2>
+          <p class="subtle">Chrome/Edge don't let any outside app do this step automatically (browser security) — it's a one-time, ~30 second manual step:</p>
+          <ol class="steps-list">
+            <li>Open <code>chrome://extensions</code> (Chrome) or <code>edge://extensions</code> (Edge) in your browser.</li>
+            <li>Turn on <strong>Developer mode</strong> (top-right toggle).</li>
+            <li>Click <strong>Load unpacked</strong>.</li>
+            <li>Select the folder you opened in step 1.</li>
+            <li>You should see a WriteMate AI icon appear in your extensions list.</li>
+          </ol>
+        </div>
+
+        <div class="panel">
+          <h2>3. Use it</h2>
+          <p class="subtle">Click into any text field on a page, look for the ✨ badge, and click it for the same actions available here. Per-site enable/disable and connection status are in the extension's own popup (click its toolbar icon).</p>
+        </div>
+      </section>
+
+      <!-- SETTINGS VIEW -->
+      <section id="view-settings" class="view">
+        <header class="view-header">
+          <h1>Settings</h1>
+        </header>
+
+        <div class="panel">
+          <h2>Privacy</h2>
+          <label class="checkbox">
+            <input type="checkbox" id="privacyModeToggle" />
+            Do not save my text (privacy mode — on by default)
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" id="historyToggle" />
+            Enable history
+          </label>
+          <p class="subtle">History only records when both are set to allow it. Nothing is ever sent anywhere except your chosen AI provider, and only when you click Generate.</p>
+        </div>
+
+        <div class="panel">
+          <h2>AI Provider</h2>
+          <div class="field">
+            <label class="field-label" for="providerSelect">Provider</label>
+            <select id="providerSelect">
+              <option value="openai">OpenAI</option>
+              <option value="anthropic">Anthropic</option>
+              <option value="custom">Custom / Local (OpenAI-compatible)</option>
+            </select>
+          </div>
+
+          <div id="providerFields-openai" class="provider-fields">
+            <div class="row">
+              <div class="field field-grow"><label class="field-label">OpenAI API key</label><input id="openaiApiKey" type="password" placeholder="sk-…" /></div>
+              <div class="field"><label class="field-label">Model</label><input id="openaiModel" type="text" placeholder="gpt-4o-mini" /></div>
+            </div>
+          </div>
+          <div id="providerFields-anthropic" class="provider-fields hidden">
+            <div class="row">
+              <div class="field field-grow"><label class="field-label">Anthropic API key</label><input id="anthropicApiKey" type="password" placeholder="sk-ant-…" /></div>
+              <div class="field"><label class="field-label">Model</label><input id="anthropicModel" type="text" placeholder="claude-3-5-haiku-20241022" /></div>
+            </div>
+          </div>
+          <div id="providerFields-custom" class="provider-fields hidden">
+            <div class="row">
+              <div class="field field-grow"><label class="field-label">Base URL</label><input id="customBaseUrl" type="text" placeholder="http://localhost:11434/v1" /></div>
+              <div class="field"><label class="field-label">Model</label><input id="customModel" type="text" placeholder="llama3.1" /></div>
+              <div class="field"><label class="field-label">API key (optional)</label><input id="customApiKey" type="password" /></div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label class="field-label">Temperature: <span id="temperatureValue">0.4</span></label>
+              <input id="temperatureSlider" type="range" min="0" max="1" step="0.05" />
+            </div>
+            <div class="field">
+              <label class="field-label">Max output tokens</label>
+              <input id="maxTokensInput" type="number" min="50" max="4000" step="50" />
+            </div>
+          </div>
+
+          <button id="saveSettingsBtn" class="btn btn-primary" type="button">Save settings</button>
+          <span id="settingsSavedNote" class="subtle hidden">Saved.</span>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
